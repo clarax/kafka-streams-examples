@@ -1,0 +1,7 @@
+{"namespace": "io.confluent.examples.streams.avro",
+ "type": "record",
+ "name": "Words",
+ "fields": [
+     {"name": "words", "type": "string"}
+ ]
+}
