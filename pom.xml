@@ -459,4 +459,22 @@
             </build>
         </profile>
     </profiles>
+    <distributionManagement>
+        <repository>
+            <uniqueVersion>false</uniqueVersion>
+            <id>central</id>
+            <name>artifactory-releases</name>
+            <url>
+                http://artprod.dev.bloomberg.com/artifactory/libs-release-local
+            </url>
+        </repository>
+        <snapshotRepository>
+            <uniqueVersion>false</uniqueVersion>
+            <id>snapshots</id>
+            <name>artifactory-snapshots</name>
+            <url>
+                http://artprod.dev.bloomberg.com/artifactory/libs-snapshot-local
+            </url>
+        </snapshotRepository>
+    </distributionManagement>
 </project>
