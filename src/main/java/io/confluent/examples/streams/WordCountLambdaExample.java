@@ -20,16 +20,15 @@ import io.confluent.examples.streams.avro.Words;
 import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig;
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde;
 import org.apache.avro.specific.SpecificRecord;
+import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
-import org.apache.kafka.streams.KafkaStreams;
-import org.apache.kafka.streams.StreamsBuilder;
-import org.apache.kafka.streams.StreamsConfig;
-import org.apache.kafka.streams.Consumed;
+import org.apache.kafka.streams.*;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.KTable;
 import org.apache.kafka.streams.kstream.Produced;
-import org.apache.kafka.streams.KeyValue;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
 
 import java.util.*;
 import java.util.regex.Pattern;
@@ -151,23 +150,19 @@ public class WordCountLambdaExample {
     // Set up serializers and deserializers, which we will use for overriding the default serdes
     // specified above.
     final Serde<String> stringSerde = Serdes.String();
-    final Serde<Long> longSerde = Serdes.Long();
     final SpecificAvroSerde<Words> wordsSerde = createSerde(schemaRegistryUrl);
     final SpecificAvroSerde<WordCount> wordCountSerde = createSerde(schemaRegistryUrl);
+
+    String input_topic = Optional.ofNullable(System.getenv(kafka_input_topic)).orElse("streams-plaintext-input");
 
     // In the subsequent lines we define the processing topology of the Streams application.
     final StreamsBuilder builder = new StreamsBuilder();
 
-    // Construct a `KStream` from the input topic "streams-plaintext-input", where message values
+    // Construct a `KStream` from the input topic "kafka-streams-demo-input", where message values
     // represent lines of text (for the sake of this example, we ignore whatever may be stored
     // in the message keys).
-    //
-    // Note: We could also just call `builder.stream("streams-plaintext-input")` if we wanted to leverage
-    // the default serdes specified in the Streams configuration above, because these defaults
-    // match what's in the actual topic.  However we explicitly set the deserializers in the
-    // call to `stream()` below in order to show how that's done, too.
-    final KStream<String, Words> textLines = builder.stream(Optional.ofNullable(System.getenv(kafka_input_topic))
-            .orElse("streams-plaintext-input"), Consumed.with(stringSerde, wordsSerde));
+
+    final KStream<String, Words> textLines = builder.stream(input_topic, Consumed.with(stringSerde, wordsSerde));
 
     final Pattern pattern = Pattern.compile("\\W+", Pattern.UNICODE_CHARACTER_CLASS);
 
